@@ -8,13 +8,13 @@ import os
 class Asencryptor:
     
     # genrated public key
-    generated_public_key = None
+    public_key = None
     #generated private key
-    generated_private_key = None
+    private_key = None
     # load private key
-    load_private_key = None
+    loaded_private_key = None
     # load public key
-    load_public_key = None
+    loaded_public_key = None
     # filename for encode
     filename = None
     # input file data for encode
@@ -84,7 +84,7 @@ class Asencryptor:
     def load_private_key(self):
         if os.path.exists(self.current_dir+"/privateKey.pem"):
             with open("privateKey.pem", "rb") as prk:
-                self.readed_private_key = serialization.load_pem_private_key(
+                self.loaded_private_key = serialization.load_pem_private_key(
                     prk.read(),
                     password=None,
                     backend=default_backend()
@@ -97,7 +97,7 @@ class Asencryptor:
     def load_public_key(self):
         if os.path.exists(self.current_dir+"/publicKey.pem"):
             with open("publicKey.pem", "rb") as pbk:
-                self.readed_public_key = serialization.load_pem_public_key(
+                self.loaded_public_key = serialization.load_pem_public_key(
                     pbk.read(),
                     backend=default_backend()
                 )
@@ -105,6 +105,11 @@ class Asencryptor:
         else:
             print("Invalid path or file !")
             return False
+    #load keys
+    def load_keys(self):
+        self.load_private_key()
+        self.load_public_key()
+        return True
     
     #encryption
     #open file to encryption
@@ -119,7 +124,7 @@ class Asencryptor:
             return False
     #encrypt file   
     def encrypt(self):
-        self.output_file_data = self.public_key.encrypt(
+        self.output_file_data = self.loaded_public_key.encrypt(
             self.input_file_data,
             padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
@@ -129,18 +134,21 @@ class Asencryptor:
         )
         return True
     
-    #write file data for encryption
-    def write_file_data_for_encryption(self):
+    #write file data after encryption
+    def write_file_data_after_encryption(self):
         filename = "enc_"+self.filename
-        with open(filename) as encf:
+        ext = len(filename) - filename.index('.')
+        with open(filename[:-ext], "wb") as encf:
             encf.write(self.output_file_data)
+        self.write_ext_to_index_file(filename[filename.index('.'):])
         return True
 
     #Decrypt
     #read file data for decryption
     def load_file_data_for_decryption(self, filename):
         if os.path.exists(self.current_dir+"/"+filename):
-            with open(filename) as encf:
+            self.filename = filename
+            with open(filename, "rb") as encf:
                 self.loaded_file_data = encf.read()
             return True
         else:
@@ -149,7 +157,7 @@ class Asencryptor:
     
     # decrypt loaded file data
     def decrypt(self):
-        self.decrypted_file_data = self.private_key.decrypt(
+        self.decrypted_file_data = self.loaded_private_key.decrypt(
             self.loaded_file_data,
             padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
@@ -158,8 +166,31 @@ class Asencryptor:
             )
         )
         return True
+    
+    # write file data after decryption
+    def write_file_data_after_decryption(self):
+        with open(self.filename[4:], "wb") as encf:
+            encf.write(self.decrypted_file_data)
+        return True
         
-        
+    
+    # remove original file after encryption
+    def remove_orgfile_after_encryption(self):
+        os.remove(self.filename)
+        return True
+    
+    def remove_encrypted_file_after_decryption(self):
+        os.remove(self.filename)
+        return True
+    
+    def generate_files_ext_index(self):
+        with open("indexes.txt", "w") as indexes:
+            indexes.write("")
+        return True
+            
+    def write_ext_to_index_file(self, ext):
+        with open("indexes.txt", "a") as indexes:
+            indexes.write(ext)
     
         
         
