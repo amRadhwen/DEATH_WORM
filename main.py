@@ -1,7 +1,12 @@
-from encryptor import Encryptor
+#from encryptor import Encryptor
+from asencryptor import Asencryptor
 
+
+asenc = Asencryptor()
+asenc.generate_keys()
 
 if __name__ == "__main__":
+    '''
 	enc = Encryptor()
 	input_file = "helloworld.txt"
 	encrypted_file = "enc_helloworld"
@@ -18,3 +23,5 @@ if __name__ == "__main__":
 		print("File decrypted successfully :)")
 	else:
 		print("Encryption Failed !")
+  	'''
+	
