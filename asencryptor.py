@@ -19,7 +19,7 @@ class Asencryptor:
     filename = None
     # input file data for encode
     input_file_data = None
-    # output file date (encoded)
+    # output file data (encoded)
     output_file_data = None    
     # loaded file data for decryption
     loaded_file_data = None
@@ -114,8 +114,9 @@ class Asencryptor:
     #encryption
     #open file to encryption
     def read_file_data_for_encryption(self, filename):
-        if os.path.exists(self.current_dir+"/"+filename):
+        if os.path.exists(filename):
             self.filename = filename
+            print(self.filename)
             with open(filename, "rb") as f:
                 self.input_file_data = f.read()
             return True
@@ -124,23 +125,28 @@ class Asencryptor:
             return False
     #encrypt file   
     def encrypt(self):
-        self.output_file_data = self.loaded_public_key.encrypt(
-            self.input_file_data,
-            padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                algorithm=hashes.SHA256(),
-                label=None
+        try:
+            self.output_file_data = self.loaded_public_key.encrypt(
+                self.input_file_data,
+                padding.OAEP(
+                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                    algorithm=hashes.SHA256(),
+                    label=None
+                )
             )
-        )
-        return True
+            return True
+        except Exception as e:
+            print(e.__str__()+" !")
+            return False
     
     #write file data after encryption
     def write_file_data_after_encryption(self):
-        filename = "enc_"+self.filename
-        ext = len(filename) - filename.index('.')
-        with open(filename[:-ext], "wb") as encf:
+        filename = os.path.abspath("enc_"+os.path.basename(self.filename))
+        #ext = len(filename) - filename.index('.')
+        #with open(filename[:-ext], "wb") as encf:
+        with open(filename, "wb") as encf:
             encf.write(self.output_file_data)
-        self.write_ext_to_index_file(filename[filename.index('.'):])
+        #self.write_ext_to_index_file(filename[filename.index('.'):])
         return True
 
     #Decrypt
