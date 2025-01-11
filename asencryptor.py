@@ -2,11 +2,11 @@
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import serialization, hashes
+#from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 #os file system
 import os
 
-class Asencryptor:
-    
+class Encryptor:
     # genrated public key
     public_key = None
     #generated private key
@@ -115,10 +115,9 @@ class Asencryptor:
     #open file to encryption
     def read_file_data_for_encryption(self, filename):
         if os.path.exists(filename):
-            self.filename = filename
-            print(self.filename)
-            with open(filename, "rb") as f:
-                self.input_file_data = f.read()
+            self.filename = os.path.abspath(filename)
+            with open(filename, "rb") as file:
+                self.input_file_data = file.read()
             return True
         else:
             print("Invalid path or file !")
@@ -134,6 +133,7 @@ class Asencryptor:
                     label=None
                 )
             )
+            print(self.output_file_data)
             return True
         except Exception as e:
             print(e.__str__()+" !")

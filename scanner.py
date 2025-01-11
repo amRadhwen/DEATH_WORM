@@ -3,6 +3,7 @@ import os
 from indexHandler import IndexHandler
 from asencryptor import Asencryptor
 
+
 class Scanner:
     
     __os = None
